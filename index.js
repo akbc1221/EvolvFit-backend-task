@@ -27,7 +27,7 @@ app.use(express.urlencoded({extended: true}));
 
 //routes
 app.get('/',(req,res)=>{
-    res.send("Hello");
+    res.send("Welcome to blogs site");
 });
 
 app.use('/blogs',postRoute);
