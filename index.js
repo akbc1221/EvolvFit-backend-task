@@ -2,7 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 
-import postRoute from './routes/Posts.js';
+import postRoute from './routes/Routes.js';
 dotenv.config();
 
 const app = express();
@@ -20,10 +20,9 @@ mongoose.connect(process.env.CONNECTION_URL,
 //to prevent warnings deprecated
 mongoose.set('useFindAndModify', false);
 
-//body parser
+//middle ware
 app.use(express.json({extended: true}));
 app.use(express.urlencoded({extended: true}));
-
 
 //routes
 app.get('/',(req,res)=>{
@@ -32,4 +31,21 @@ app.get('/',(req,res)=>{
 
 app.use('/blogs',postRoute);
 
+//error
+app.use((req,res,next)=>{
+    const err = new Error("page not found");
+    err.status = 404;
+    next(err);
+});
+
+//handle error
+app.use((err,req,res,next)=>{
+    res.status(err.status || 500);
+    res.send({
+        error: {
+            status: err.status || 500,
+            message: err.message
+        }
+    })
+});
 
