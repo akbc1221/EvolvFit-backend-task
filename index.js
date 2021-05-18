@@ -3,12 +3,14 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 
 import postRoute from './routes/Routes.js';
-dotenv.config();
+import CustomError from './util/CustomError.js';
+import errorHandler from './controller/errorController.js';
 
+dotenv.config();
 const app = express();
+const PORT = process.env.PORT || 5000;
 
 //connect to database
-const PORT = process.env.PORT || 5000;
 
 //use own mongoDB url in place of process.env.CONNECTION_URL
 mongoose.connect(process.env.CONNECTION_URL, 
@@ -17,35 +19,38 @@ mongoose.connect(process.env.CONNECTION_URL,
     .then(() => app.listen(PORT, () => console.log(`Server Running on port: ${PORT}`)))
     .catch((error) => console.log(`${error} could not connect`));
 
-//to prevent warnings deprecated
-mongoose.set('useFindAndModify', false);
 
 //middle ware
 app.use(express.json({extended: true}));
 app.use(express.urlencoded({extended: true}));
 
+
 //routes
 app.get('/',(req,res)=>{
-    res.send("Welcome to blogs site");
+    res.send("Welcome to blog homepage");
 });
 
 app.use('/blogs',postRoute);
 
-//error
+//error invalid page urls
 app.use((req,res,next)=>{
-    const err = new Error("page not found");
-    err.status = 404;
-    next(err);
+    next(new CustomError("Page not found",404));
 });
 
-//handle error
-app.use((err,req,res,next)=>{
-    res.status(err.status || 500);
-    res.send({
-        error: {
-            status: err.status || 500,
-            message: err.message
-        }
-    })
-});
+//universal handle error
+app.use(errorHandler);
+
+//mongoose warning suppressor
+mongoose.set('useFindAndModify', false);
+mongoose.set('useCreateIndex', true);
+
+// (err,req,res,next)=>{
+//     res.status(err.status || 500);
+//     res.send({
+//         error: {
+//             status: err.status || 500,
+//             message: err.message
+//         }
+//     })
+// }
 
