@@ -11,7 +11,6 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 //connect to database
-
 //use own mongoDB url in place of process.env.CONNECTION_URL
 mongoose.connect(process.env.CONNECTION_URL, 
     {   useNewUrlParser: true, 
@@ -32,8 +31,9 @@ app.get('/',(req,res)=>{
 
 app.use('/blogs',postRoute);
 
+
 //error invalid page urls
-app.use((req,res,next)=>{
+app.use((req,res,next) => {
     next(new CustomError("Page not found",404));
 });
 
@@ -44,13 +44,4 @@ app.use(errorHandler);
 mongoose.set('useFindAndModify', false);
 mongoose.set('useCreateIndex', true);
 
-// (err,req,res,next)=>{
-//     res.status(err.status || 500);
-//     res.send({
-//         error: {
-//             status: err.status || 500,
-//             message: err.message
-//         }
-//     })
-// }
 
