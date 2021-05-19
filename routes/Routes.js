@@ -41,32 +41,14 @@ router.get('/get/:id', catchAsync(async(req,res,next) => {
 
 //update a blog by id
 router.patch('/update/:id', catchAsync(async(req, res, next) => {
-	const updatedBlog = await Blog.updateOne({_id: req.params.id}, {$set: req.body},(err,blog) => {
-
-        if(!blog){
-            return next(new CustomError(`No document with id: ${req.params.id}`,404));
-        }
-
-        if(err){
-            return next(new CustomError("Some error occurred",400));
-        }
-    });
+	const updatedBlog = await Blog.updateOne({_id: req.params.id}, {$set: req.body});
 	res.status(200).send(updatedBlog);
 }));
 
 
 //delete a blog by id
 router.delete('/delete/:id', catchAsync(async(req, res, next) => {
-	const deletedBlog = await Blog.findByIdAndDelete({ _id: req.params.id },(err,blog) => {
-
-        if(!blog){
-            return next(new CustomError(`No document with id: ${req.params.id}`,404));
-        }
-
-        if(err){
-            return next(new CustomError("Some error occurred",400));
-        }
-    });
+	const deletedBlog = await Blog.findByIdAndDelete({ _id: req.params.id });
 	res.status(202).send(deletedBlog);
 }));
 
@@ -75,24 +57,12 @@ router.delete('/delete/:id', catchAsync(async(req, res, next) => {
 //set routes for comments
 //get all comments for a blog
 router.get('/get/:id/comment', catchAsync(async(req, res, next) => {
-    const blogSpecific = await Blog.findById({_id: req.params.id},(err,blog) => {
-
-        if(!blog){
-            return next(new CustomError(`No document with id: ${req.params.id}`,404));
-        }
-        if(err){
-            return next(new CustomError("Some error occurred",400));
-        }
-    });
+    const blogSpecific = await Blog.findById({_id: req.params.id});
     const allCommentId = blogSpecific.toJSON().comments;
     const allComments = [];
 
     await Promise.all(allCommentId.map( async(comment_id) => {
-        const comment = await Comment.findById({_id: comment_id},(err,blog) => {
-            if(err){
-                return next(new CustomError("Some error occurred",400));
-            }
-        });
+        const comment = await Comment.findById({_id: comment_id});
         allComments.push(comment);
     })).then(()=> res.status(200).send(allComments))
 
@@ -100,20 +70,19 @@ router.get('/get/:id/comment', catchAsync(async(req, res, next) => {
 
 //post a comment
 router.post('/create/:id/comment', catchAsync(async(req, res, next) => {
-        const id = req.params.id;
-        const comment = new Comment({
-            content: req.body.comment,
-            blog: id
-        });
+    const id = req.params.id;
+    const blogSpecific = await Blog.findById({_id: id});
+    
+    const comment = new Comment({
+        content: req.body.comment,
+        blog: id
+    });
 
     const savedComment = await comment.save();
-    const blogSpecific = await Blog.findById(id);
     blogSpecific.comments.push(comment);
-        // save and redirect...
+
     await blogSpecific.save((err) => {
-        if(err) {console.log(err)
-            res.redirect('/');
-        }else{
+        if(!err) {
             res.status(201).send(savedComment);
         }
     });
