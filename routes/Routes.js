@@ -3,7 +3,6 @@ import express from 'express';
 import Blog from '../models/Blogs.js';
 import Comment from '../models/Comments.js';
 import catchAsync from '../util/catchAsync.js';
-import CustomError from '../util/CustomError.js';
 
 const router = express.Router();
 
@@ -28,16 +27,6 @@ router.get('/get/:id', catchAsync(async(req,res,next) => {
     res.status(200).send(blogSpecific);
 }));
 
-// ,(err,blog) => {
-
-//     if(!blog){
-//         return next(new CustomError(`No document with id: ${req.params.id}`,404));
-//     }
-
-//     if(err){
-//         return next(new CustomError("Some error occurred",400));
-//     }
-// }
 
 //update a blog by id
 router.patch('/update/:id', catchAsync(async(req, res, next) => {

@@ -13,7 +13,6 @@ const handleDuplicatesFieldsDB = err => {
 
 const handleValidationDB = err => {
     const message = `${err.message}`;
-    // console.log(message)
     return new CustomError(message, 400);
 }
 
@@ -59,7 +58,7 @@ export default (err,req,res,next) => {
 
     }else if(process.env.NODE_ENV === 'production'){
         let error = {...err};
-        
+
         if(err.name === "CastError") {
             error = handleCastErrorDB(err);
         }

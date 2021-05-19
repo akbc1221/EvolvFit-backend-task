@@ -6,6 +6,13 @@ import postRoute from './routes/Routes.js';
 import CustomError from './util/CustomError.js';
 import errorHandler from './controller/errorController.js';
 
+//uncaught exception
+process.on('uncaughtException', err => {
+    console.log("UNCAUGHT EXCEPTION => Shutting down application...\n");
+    console.log(`${err.name}: ${err.message}`);
+    process.exit(1);
+});
+
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -15,9 +22,11 @@ const PORT = process.env.PORT || 5000;
 mongoose.connect(process.env.CONNECTION_URL, 
     {   useNewUrlParser: true, 
         useUnifiedTopology: true })
-    .then(() => app.listen(PORT, () => console.log(`Server Running on port: ${PORT}`)))
+    .then(() => console.log("database connected"))
     .catch((error) => console.log(`${error} could not connect`));
 
+//server
+const server = app.listen(PORT, () => console.log(`Server Running on port: ${PORT}`));
 
 //middle ware
 app.use(express.json({extended: true}));
@@ -39,6 +48,15 @@ app.use((req,res,next) => {
 
 //universal handle error
 app.use(errorHandler);
+
+//unhandled Rejection Errors
+process.on('unhandledRejection', err => {
+    console.log("UNHANDLED REJECTION => Shutting down application...\n");
+    console.log(`${err.name}: ${err.message}`);
+    server.close(() => {
+        process.exit(1);
+    })
+});
 
 //mongoose warning suppressor
 mongoose.set('useFindAndModify', false);
