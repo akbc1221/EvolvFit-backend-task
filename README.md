@@ -14,8 +14,8 @@ This is a simple application using Nodejs, Express and MongoDB. Using this API, 
 
 ## Start server ##
 * To start the server - `npm start`
-* To start the server using nodemon in dev mode - `npm run dev`
-* To start the server using nodemon in production mode - `npm run start:prod`
+* To start the server in dev mode - `npm run dev`
+* To start the server in production mode - `npm run start:prod`
 
 ## API Usage ##
 * get all blogs - `curl --location --request GET 'http://localhost:<PORT>/blogs/'`
